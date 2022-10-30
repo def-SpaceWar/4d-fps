@@ -102,3 +102,10 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 }
+
+#uiElements {
+    background-color: #0000;
+    position: absolute;
+    top: 0%;
+    left: 0%;
+}
