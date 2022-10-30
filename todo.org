@@ -1,0 +1,10 @@
+#+TITLE: Todo
+
+* Make FPS working
+* Make 3d map
+* Make sample 4d map
+* Rotation on axis perspectives
+1: xyz
+2: yzw
+3: zwx
+4: wxy
