@@ -1,8 +1,15 @@
-import vertexShaderSource from './vertex_shader.glsl?raw';
-import fragmentShaderSource from './fragment_shader.glsl?raw';
+import { ATTR_NORMAL_LOC, ATTR_NORMAL_NAME, ATTR_POSITION_LOC, ATTR_POSITION_NAME, ATTR_UV_LOC, ATTR_UV_NAME } from './webglsetup';
+
+export type ShaderAttributes = {
+    position: number,
+    normal: number,
+    uv: number
+};
 
 export class ShaderUtil {
-    private static createShader(gl: WebGL2RenderingContext, src: string, type: number) {
+    static debugMode: boolean = true;
+
+    static createShader(gl: WebGL2RenderingContext, src: string, type: number) {
         const shader = gl.createShader(type)!;
         gl.shaderSource(shader, src);
         gl.compileShader(shader);
@@ -15,13 +22,20 @@ export class ShaderUtil {
         return shader;
     }
 
-    public static createProgram(gl: WebGL2RenderingContext) {
+    static createProgram(gl: WebGL2RenderingContext, vertexShaderSource: string, fragmentShaderSource: string) {
         const program = gl.createProgram()!,
             vShader = this.createShader(gl, vertexShaderSource, gl.VERTEX_SHADER)!,
             fShader = this.createShader(gl, fragmentShaderSource, gl.FRAGMENT_SHADER)!;
 
+        if (!fShader) (gl.deleteShader(vShader));
+
         gl.attachShader(program, vShader);
         gl.attachShader(program, fShader);
+
+        gl.bindAttribLocation(program, ATTR_POSITION_LOC, ATTR_POSITION_NAME);
+        gl.bindAttribLocation(program, ATTR_NORMAL_LOC, ATTR_NORMAL_NAME);
+        gl.bindAttribLocation(program, ATTR_UV_LOC, ATTR_UV_NAME);
+
         gl.linkProgram(program);
 
         if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
@@ -29,8 +43,9 @@ export class ShaderUtil {
             gl.deleteProgram(program);
             return null;
         }
+
         // debugging
-        if (true) {
+        if (this.debugMode) {
             gl.validateProgram(program);
             if (!gl.getProgramParameter(program, gl.VALIDATE_STATUS)) {
                 console.error("Error validating program.", gl.getProgramInfoLog(program));
@@ -45,5 +60,13 @@ export class ShaderUtil {
         gl.deleteShader(fShader);
 
         return program;
+    }
+
+    static getStandardAttribLocations(gl: WebGL2RenderingContext, program: WebGLProgram) {
+        return {
+            position: gl.getAttribLocation(program, ATTR_POSITION_NAME),
+            normal: gl.getAttribLocation(program, ATTR_NORMAL_NAME),
+            uv: gl.getAttribLocation(program, ATTR_UV_NAME)
+        }
     }
 }

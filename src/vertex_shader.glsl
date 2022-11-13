@@ -1,8 +1,11 @@
 #version 300 es
+precision highp float;
 
 in vec3 a_position;
+in vec3 a_normal;
+in vec3 a_uv;
 
-uniform float uPointSize;
+uniform mediump float uPointSize;
 uniform float uAngle;
 
 void main() {
