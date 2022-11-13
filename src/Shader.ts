@@ -37,8 +37,12 @@ export class Shader {
 
         if (modal.mesh.indexCount)
             this.gl.drawElements(modal.mesh.drawMode, modal.mesh.indexCount, this.gl.UNSIGNED_SHORT, 0);
-        else
+        else if (modal.mesh.vertexCount)
             this.gl.drawArrays(modal.mesh.drawMode, 0, modal.mesh.vertexCount);
+        else {
+            console.debug("Nothing to draw.");
+            console.debug(modal);
+        }
 
         this.gl.bindVertexArray(null);
 
@@ -48,25 +52,12 @@ export class Shader {
 
 import vertexShaderSource from './vertex_shader.glsl?raw';
 import fragmentShaderSource from './fragment_shader.glsl?raw';
-
-type TestUniforms = { uPointSize: WebGLUniformLocation, uAngle: WebGLUniformLocation };
-export class TestShader extends Shader {
-    uniformLoc: TestUniforms;
-
-    constructor(gl: WebGL2RenderingContext) {
+export class TestShader extends Shader { constructor(gl: WebGL2RenderingContext, arrayColor: number[]) {
         super(gl, vertexShaderSource, fragmentShaderSource);
 
-        this.uniformLoc = {
-            uPointSize: gl.getUniformLocation(this.program,"uPointSize")!,
-            uAngle: gl.getUniformLocation(this.program,"uAngle")!
-        };
-
+        gl.useProgram(this.program);
+        const uColor = gl.getUniformLocation(this.program, "uColor");
+        gl.uniform3fv(uColor, arrayColor);
         gl.useProgram(null);
-    }
-
-    set(size: number, angle: number) {
-        this.gl.uniform1f(this.uniformLoc.uPointSize, size);
-        this.gl.uniform1f(this.uniformLoc.uAngle, angle);
-        return this;
     }
 }

@@ -139,7 +139,7 @@ export type GLInstanceValues = {
 export const GLInstance = (): GLInstanceValues => {
     const gl = document.getElementsByTagName("canvas")[0].getContext("webgl2")!;
     if (!gl) { console.error("WebGL2 Context not available."); }
-    gl.clearColor(0.5, 0.5, 0.5, 1);
+    gl.clearColor(0, 0, 0, 0);
     return {
         gl,
         meshCache: [],

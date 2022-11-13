@@ -3,6 +3,7 @@ import './style.css';
 import { GLInstance } from "./webglsetup";
 import { RenderLoop } from "./RenderLoop";
 import { TestShader } from './Shader';
+import { Primatives } from './Primatives';
 import { Modal } from './Modal';
 
 const
@@ -11,36 +12,39 @@ const
     meshCache = _data.meshCache,
     clear = _data.clear,
     //createArrayBuffer = _data.createArrayBuffer,
-    setSize = _data.setSize,
-    createMesh = _data.createMeshVAO;
+    setSize = _data.setSize;
+    //createMesh = _data.createMeshVAO;
 
 const
     uiCanvas = document.getElementsByTagName("canvas")[1]!,
     uiCtx = uiCanvas.getContext("2d")!;
 
-uiCtx.strokeStyle="#f00";
-uiCtx.font="bold 48px monospace";
-
-const gShader = new TestShader(gl);
-gShader.activate();
-
-const mesh = createMesh(
-    "dots",
-    undefined,
+const gShader = new TestShader(
+    gl,
     [
-        0.0, 0.0, 0.0,
-        0.1, 0.1, 0.0,
-        0.1, -.1, 0.0,
-        -.1, -.1, 0.0,
-        -.1, 0.1, 0.0
-    ],
-    undefined,
-    undefined,
-    meshCache
+        0.8, 0.8, 0.8, // grey
+        1.0, 0.0, 0.0, // red
+        0.0, 1.0, 0.0, // green
+        0.0, 0.0, 1.0  // blue
+    ]
 );
-mesh.drawMode = gl.POINTS;
 
-const gModal = new Modal(mesh);
+//const mesh = createMesh(
+//    "lines",
+//    undefined,
+//    [
+//        .0, 1., .0,
+//        .0, -1, .0,
+//        -1, .0, .0,
+//        1., .0, .0
+//    ],
+//    undefined,
+//    undefined,
+//    meshCache
+//);
+//mesh.drawMode = gl.LINES;
+
+const gModal = new Modal(Primatives.GridAxis.createMesh(gl, meshCache));
 
 const fpsTimes: number[] = [];
 for (let i = 0; i < 100; i++) fpsTimes.push(0);
@@ -50,20 +54,15 @@ const avgFps = () => {
     return Math.round(sum/fpsTimes.length);
 };
 
-let uPointSize = 5;
-const pointSizeStep = 1;
-
-let uAngle = 0;
-let angleStep = 0;
-const angleStepStep = Math.PI/64;
-
-const renderLoop = new RenderLoop((dt: number) => {
+const renderLoop = new RenderLoop((_: number) => {
     clear();
-    gShader.set(Math.sin((uPointSize += (pointSizeStep * dt)) + uAngle) * uPointSize + uPointSize * 2, uAngle += ((angleStep += angleStepStep * dt) * dt)).renderModal(gModal);
+    gShader.activate().renderModal(gModal);
 
     uiCtx.clearRect(0,0,window.innerWidth,window.innerHeight);
     fpsTimes.shift()
     fpsTimes.push(renderLoop.fps);
+    uiCtx.strokeStyle="#f00";
+    uiCtx.font="bold 48px monospace";
     uiCtx.strokeText("FPS: " + avgFps(), 0, 48);
 }, 0).start();
 
